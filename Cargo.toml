@@ -1,8 +1,8 @@
 [package]
-name = "bevy_game"
+name = "rusty_snake"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.13.2"
+bevy = { version = "0.14.0" }
 rand = "0.8.5"

@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
     window::{PresentMode, WindowTheme},
 };
-use bevy_game::{
+use rusty_snake::{
     game::game::game_plugin,
     menu::menu_plugin,
     splash::splash_plugin,
@@ -12,8 +12,6 @@ use bevy_game::{
 
 fn main() {
     App::new()
-        .init_state::<GameState>()
-        .insert_resource(Volume(7))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Snake!".into(),
@@ -32,6 +30,8 @@ fn main() {
             }),
             ..default()
         }))
+        .init_state::<GameState>()
+        .insert_resource(Volume(7))
         .add_systems(Startup, setup)
         .add_plugins((splash_plugin, game_plugin, menu_plugin))
         .run();

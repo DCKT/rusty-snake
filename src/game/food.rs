@@ -3,7 +3,7 @@ use rand::prelude::random;
 
 use crate::utils::{Position, Size, ARENA_HEIGHT, ARENA_WIDTH};
 
-pub const FOOD_COLOR: Color = Color::rgb(1.0, 0.0, 1.0);
+pub const FOOD_COLOR: Color = Color::srgb(1.0, 0.0, 1.0);
 
 #[derive(Component)]
 pub struct Food;

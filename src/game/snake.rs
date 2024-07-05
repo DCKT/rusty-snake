@@ -1,4 +1,4 @@
-use bevy::{prelude::*, render::color::Color, sprite::SpriteBundle, time::Timer};
+use bevy::{prelude::*, sprite::SpriteBundle, time::Timer};
 
 use crate::{
     game::food::Food,
@@ -24,8 +24,8 @@ pub struct SnakeHead {
 #[derive(Event)]
 pub struct GrowthEvent;
 
-const SNAKE_HEAD_COLOR: Color = Color::rgb(0.7, 0.7, 0.7);
-const SNAKE_SEGMENT_COLOR: Color = Color::rgb(0.3, 0.3, 0.3);
+const SNAKE_HEAD_COLOR: Color = Color::srgb(0.7, 0.7, 0.7);
+const SNAKE_SEGMENT_COLOR: Color = Color::srgb(0.3, 0.3, 0.3);
 
 pub fn spawn_snake(mut commands: Commands, mut segments: ResMut<SnakeSegments>) {
     *segments = SnakeSegments(vec![

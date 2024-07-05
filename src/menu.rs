@@ -43,10 +43,10 @@ pub fn menu_plugin(app: &mut App) {
         );
 }
 
-const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
-const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
-const HOVERED_PRESSED_BUTTON: Color = Color::rgb(0.25, 0.65, 0.25);
-const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
+const NORMAL_BUTTON: Color = Color::srgb(0.15, 0.15, 0.15);
+const HOVERED_BUTTON: Color = Color::srgb(0.25, 0.25, 0.25);
+const HOVERED_PRESSED_BUTTON: Color = Color::srgb(0.25, 0.65, 0.25);
+const PRESSED_BUTTON: Color = Color::srgb(0.35, 0.75, 0.35);
 
 #[derive(Component)]
 struct SelectedOption;
@@ -146,7 +146,7 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::CRIMSON.into(),
+                    background_color: bevy::color::palettes::css::CRIMSON.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -271,7 +271,7 @@ fn settings_menu_setup(mut commands: Commands) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::CRIMSON.into(),
+                    background_color: bevy::color::palettes::css::CRIMSON.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -335,7 +335,7 @@ fn settings_sound_menu_setup(mut commands: Commands, volume: Res<Volume>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::CRIMSON.into(),
+                    background_color: bevy::color::palettes::css::CRIMSON.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -345,7 +345,7 @@ fn settings_sound_menu_setup(mut commands: Commands, volume: Res<Volume>) {
                                 align_items: AlignItems::Center,
                                 ..default()
                             },
-                            background_color: Color::CRIMSON.into(),
+                            background_color: bevy::color::palettes::css::CRIMSON.into(),
                             ..default()
                         })
                         .with_children(|parent| {
@@ -400,7 +400,7 @@ fn menu_action(
         if *interaction == Interaction::Pressed {
             match menu_button_action {
                 MenuButtonAction::Quit => {
-                    app_exit_events.send(AppExit);
+                    app_exit_events.send(AppExit::Success);
                 }
                 MenuButtonAction::Play => {
                     game_state.set(GameState::Game);

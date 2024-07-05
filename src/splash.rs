@@ -25,7 +25,7 @@ fn splash_setup(mut commands: Commands) {
                     height: Val::Percent(100.),
                     ..default()
                 },
-                background_color: Color::CRIMSON.into(),
+                background_color: bevy::color::palettes::css::CRIMSON.into(),
                 ..default()
             },
             OnSplashScreen,

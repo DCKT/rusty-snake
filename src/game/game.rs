@@ -1,10 +1,17 @@
 use bevy::prelude::*;
 
 use crate::{
-    game::food::*,
-    game::snake::*,
+    game::{food::*, snake::*},
     utils::{despawn_screen, GameState, Position, Size, ARENA_HEIGHT, ARENA_WIDTH},
 };
+
+// #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, SubStates)]
+// #[source(GameState = GameState::Game)]
+// enum InGameState {
+//     #[default]
+//     Running,
+//     Paused,
+// }
 
 #[derive(Event)]
 pub struct GameOverEvent;
@@ -13,7 +20,9 @@ pub struct GameOverEvent;
 struct OnGameScreen;
 
 pub fn game_plugin(app: &mut App) {
-    app.insert_resource(ClearColor(Color::rgb(0.04, 0.04, 0.04)))
+    app
+        // .add_sub_state::<InGameState>()
+        .insert_resource(ClearColor(Color::srgb(0.04, 0.04, 0.04)))
         .insert_resource(FoodSpawnTimer(Timer::from_seconds(
             2.0,
             TimerMode::Repeating,
