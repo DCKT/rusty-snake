@@ -4,7 +4,7 @@ use bevy::{
     window::{PresentMode, WindowTheme},
 };
 use bevy_game::{
-    game::game_plugin,
+    game::game::game_plugin,
     menu::menu_plugin,
     splash::splash_plugin,
     utils::{GameState, Volume},
