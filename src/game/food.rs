@@ -11,8 +11,34 @@ pub struct Food;
 #[derive(Resource)]
 pub struct FoodSpawnTimer(pub Timer);
 
-pub fn food_spawner(mut commands: Commands, time: Res<Time>, mut timer: ResMut<FoodSpawnTimer>) {
+fn generate_random_position() -> Position {
+    Position {
+        x: (random::<f32>() * ARENA_WIDTH as f32) as i32,
+        y: (random::<f32>() * ARENA_HEIGHT as f32) as i32,
+    }
+}
+
+fn get_available_position(positions: Query<&Position>) -> Position {
+    let new_pos = generate_random_position();
+
+    let new_pos_is_available = positions.iter().find(|&&pos| pos == new_pos).is_none();
+
+    if new_pos_is_available {
+        new_pos
+    } else {
+        get_available_position(positions)
+    }
+}
+
+pub fn food_spawner(
+    mut commands: Commands,
+    positions: Query<&Position>,
+    time: Res<Time>,
+    mut timer: ResMut<FoodSpawnTimer>,
+) {
     if timer.0.tick(time.delta()).just_finished() {
+        let position = get_available_position(positions);
+
         commands
             .spawn(SpriteBundle {
                 sprite: Sprite {
@@ -22,10 +48,7 @@ pub fn food_spawner(mut commands: Commands, time: Res<Time>, mut timer: ResMut<F
                 ..default()
             })
             .insert(Food)
-            .insert(Position {
-                x: (random::<f32>() * ARENA_WIDTH as f32) as i32,
-                y: (random::<f32>() * ARENA_HEIGHT as f32) as i32,
-            })
+            .insert(position)
             .insert(Size::square(0.8));
     }
 }

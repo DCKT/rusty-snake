@@ -9,7 +9,7 @@ use crate::{
 #[derive(Component)]
 pub struct SnakeSegment;
 #[derive(Default, Resource)]
-pub struct SnakeSegments(Vec<Entity>);
+pub struct SnakeSegments(pub Vec<Entity>);
 #[derive(Default, Resource)]
 pub struct LastTailPosition(Option<Position>);
 
@@ -125,8 +125,7 @@ pub fn snake_movement(
         }
     }
 }
-
-pub fn spawn_segment(mut commands: Commands, position: Position) -> Entity {
+fn spawn_segment(mut commands: Commands, position: Position) -> Entity {
     commands
         .spawn(SpriteBundle {
             sprite: Sprite {
