@@ -3,7 +3,7 @@ use rand::prelude::random;
 
 use crate::utils::{Position, Size, ARENA_HEIGHT, ARENA_WIDTH};
 
-pub const FOOD_COLOR: Color = Color::srgb(1.0, 0.0, 1.0);
+const FOOD_COLOR: Color = Color::srgb(1.0, 0.0, 1.0);
 
 #[derive(Component)]
 pub struct Food;
@@ -21,12 +21,11 @@ fn generate_random_position() -> Position {
 fn get_available_position(positions: Query<&Position>) -> Position {
     let new_pos = generate_random_position();
 
-    let new_pos_is_available = positions.iter().find(|&&pos| pos == new_pos).is_none();
-
-    if new_pos_is_available {
-        new_pos
-    } else {
+    // TODO: handle no space available (win)
+    if let Some(_) = positions.iter().find(|&&pos| pos == new_pos) {
         get_available_position(positions)
+    } else {
+        new_pos
     }
 }
 

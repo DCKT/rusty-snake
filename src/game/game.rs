@@ -5,6 +5,8 @@ use crate::{
     utils::{despawn_screen, GameState, Position, Size, ARENA_HEIGHT, ARENA_WIDTH, TEXT_COLOR},
 };
 
+use super::sound::{self, FoodEatenPitchEvent, PitchFrequency};
+
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, SubStates)]
 #[source(GameState = GameState::Game)]
 enum InGameState {
@@ -22,20 +24,10 @@ struct OnGameScreen;
 pub fn game_plugin(app: &mut App) {
     app.add_sub_state::<InGameState>()
         .enable_state_scoped_entities::<InGameState>()
-        .insert_resource(ClearColor(Color::srgb(0.04, 0.04, 0.04)))
-        .insert_resource(FoodSpawnTimer(Timer::from_seconds(
-            2.0,
-            TimerMode::Repeating,
-        )))
-        .insert_resource(SnakeDirectionTimer(Timer::from_seconds(
-            0.20,
-            TimerMode::Repeating,
-        )))
-        .insert_resource(LastTailPosition::default())
-        .insert_resource(SnakeSegments::default())
         .add_event::<GrowthEvent>()
         .add_event::<GameOverEvent>()
-        .add_systems(OnEnter(GameState::Game), spawn_snake)
+        .add_event::<FoodEatenPitchEvent>()
+        .add_systems(OnEnter(GameState::Game), (init_game, spawn_snake).chain())
         .add_systems(Update, pause_menu.run_if(in_state(InGameState::Paused)))
         .add_systems(OnExit(InGameState::Paused), despawn_screen::<OnPauseScreen>)
         .add_systems(
@@ -46,6 +38,7 @@ pub fn game_plugin(app: &mut App) {
                     snake_eating,
                     snake_growth,
                     snake_movement,
+                    sound::play_food_eaten_pitch,
                     game_over,
                     food_spawner,
                 )
@@ -57,6 +50,21 @@ pub fn game_plugin(app: &mut App) {
         .add_systems(PostUpdate, (position_translation, size_scaling))
         .add_systems(Update, log_transitions::<GameState>)
         .add_systems(OnExit(GameState::Game), despawn_screen::<OnGameScreen>);
+}
+
+fn init_game(mut commands: Commands) {
+    commands.insert_resource(ClearColor(Color::srgb(0.04, 0.04, 0.04)));
+    commands.insert_resource(FoodSpawnTimer(Timer::from_seconds(
+        2.0,
+        TimerMode::Repeating,
+    )));
+    commands.insert_resource(SnakeDirectionTimer(Timer::from_seconds(
+        0.20,
+        TimerMode::Repeating,
+    )));
+    commands.insert_resource(LastTailPosition::default());
+    commands.insert_resource(SnakeSegments::default());
+    sound::setup(commands);
 }
 
 fn toggle_pause(

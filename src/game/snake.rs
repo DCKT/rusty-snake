@@ -6,6 +6,8 @@ use crate::{
     utils::{Direction, Position, Size, ARENA_HEIGHT, ARENA_WIDTH},
 };
 
+use super::sound::FoodEatenPitchEvent;
+
 #[derive(Component)]
 pub struct SnakeSegment;
 #[derive(Default, Resource)]
@@ -156,6 +158,7 @@ pub fn snake_growth(
 pub fn snake_eating(
     mut commands: Commands,
     mut growth_writer: EventWriter<GrowthEvent>,
+    mut pitch_writer: EventWriter<FoodEatenPitchEvent>,
     food_positions: Query<(Entity, &Position), With<Food>>,
     head_positions: Query<&Position, With<SnakeHead>>,
 ) {
@@ -164,6 +167,7 @@ pub fn snake_eating(
             if food_pos == head_pos {
                 commands.entity(ent).despawn();
                 growth_writer.send(GrowthEvent);
+                pitch_writer.send(FoodEatenPitchEvent);
             }
         }
     }
