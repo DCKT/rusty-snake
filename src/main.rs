@@ -14,7 +14,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
-                title: "Snake!".into(),
+                title: "Rusty Snake".into(),
                 name: Some("bevy.app".into()),
                 resolution: (500., 500.).into(),
                 present_mode: PresentMode::AutoVsync,

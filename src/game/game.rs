@@ -1,17 +1,17 @@
-use bevy::prelude::*;
+use bevy::{dev_tools::states::*, prelude::*};
 
 use crate::{
     game::{food::*, snake::*},
-    utils::{despawn_screen, GameState, Position, Size, ARENA_HEIGHT, ARENA_WIDTH},
+    utils::{despawn_screen, GameState, Position, Size, ARENA_HEIGHT, ARENA_WIDTH, TEXT_COLOR},
 };
 
-// #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, SubStates)]
-// #[source(GameState = GameState::Game)]
-// enum InGameState {
-//     #[default]
-//     Running,
-//     Paused,
-// }
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, SubStates)]
+#[source(GameState = GameState::Game)]
+enum InGameState {
+    #[default]
+    Running,
+    Paused,
+}
 
 #[derive(Event)]
 pub struct GameOverEvent;
@@ -20,8 +20,8 @@ pub struct GameOverEvent;
 struct OnGameScreen;
 
 pub fn game_plugin(app: &mut App) {
-    app
-        // .add_sub_state::<InGameState>()
+    app.add_sub_state::<InGameState>()
+        .enable_state_scoped_entities::<InGameState>()
         .insert_resource(ClearColor(Color::srgb(0.04, 0.04, 0.04)))
         .insert_resource(FoodSpawnTimer(Timer::from_seconds(
             2.0,
@@ -35,22 +35,90 @@ pub fn game_plugin(app: &mut App) {
         .insert_resource(SnakeSegments::default())
         .add_event::<GrowthEvent>()
         .add_event::<GameOverEvent>()
-        .add_systems(OnEnter(GameState::Game), spawn_snake)
+        .add_systems(OnEnter(InGameState::Running), spawn_snake)
+        .add_systems(Update, pause_menu.run_if(in_state(InGameState::Paused)))
+        .add_systems(OnExit(InGameState::Paused), despawn_screen::<OnPauseScreen>)
         .add_systems(
             Update,
             (
-                snake_movement_input,
-                snake_eating,
-                snake_growth,
-                snake_movement,
-                game_over,
-                food_spawner,
-            )
-                .chain()
-                .run_if(in_state(GameState::Game)),
+                (
+                    snake_movement_input,
+                    snake_eating,
+                    snake_growth,
+                    snake_movement,
+                    game_over,
+                    food_spawner,
+                )
+                    .chain()
+                    .run_if(in_state(InGameState::Running)),
+                (toggle_pause.run_if(in_state(GameState::Game))),
+            ),
         )
         .add_systems(PostUpdate, (position_translation, size_scaling))
+        .add_systems(Update, log_transitions::<GameState>)
         .add_systems(OnExit(GameState::Game), despawn_screen::<OnGameScreen>);
+}
+
+fn toggle_pause(
+    input: Res<ButtonInput<KeyCode>>,
+    current_state: Res<State<InGameState>>,
+    mut next_state: ResMut<NextState<InGameState>>,
+) {
+    if input.just_pressed(KeyCode::Escape) {
+        next_state.set(match current_state.get() {
+            InGameState::Running => InGameState::Paused,
+            InGameState::Paused => InGameState::Running,
+        });
+    }
+}
+
+#[derive(Component)]
+struct OnPauseScreen;
+
+fn pause_menu(mut commands: Commands) {
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    ..default()
+                },
+                ..default()
+            },
+            OnPauseScreen,
+        ))
+        .with_children(|parent| {
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        flex_direction: FlexDirection::Column,
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    background_color: bevy::color::palettes::css::CRIMSON.into(),
+                    ..default()
+                })
+                .with_children(|parent| {
+                    // Display the game name
+                    parent.spawn(
+                        TextBundle::from_section(
+                            "Pause",
+                            TextStyle {
+                                font_size: 80.0,
+                                color: TEXT_COLOR,
+                                ..default()
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::all(Val::Px(50.0)),
+                            ..default()
+                        }),
+                    );
+                });
+        });
 }
 
 fn game_over(
