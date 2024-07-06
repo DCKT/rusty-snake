@@ -35,7 +35,7 @@ pub fn game_plugin(app: &mut App) {
         .insert_resource(SnakeSegments::default())
         .add_event::<GrowthEvent>()
         .add_event::<GameOverEvent>()
-        .add_systems(OnEnter(InGameState::Running), spawn_snake)
+        .add_systems(OnEnter(GameState::Game), spawn_snake)
         .add_systems(Update, pause_menu.run_if(in_state(InGameState::Paused)))
         .add_systems(OnExit(InGameState::Paused), despawn_screen::<OnPauseScreen>)
         .add_systems(
