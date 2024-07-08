@@ -6,7 +6,7 @@ use crate::{
     utils::{Direction, Position, Size, ARENA_HEIGHT, ARENA_WIDTH},
 };
 
-use super::sound::FoodEatenPitchEvent;
+use super::{game::OnGameScreen, sound::FoodEatenPitchEvent};
 
 #[derive(Component)]
 pub struct SnakeSegment;
@@ -32,13 +32,16 @@ const SNAKE_SEGMENT_COLOR: Color = Color::srgb(0.3, 0.3, 0.3);
 pub fn spawn_snake(mut commands: Commands, mut segments: ResMut<SnakeSegments>) {
     *segments = SnakeSegments(vec![
         commands
-            .spawn(SpriteBundle {
-                sprite: Sprite {
-                    color: SNAKE_HEAD_COLOR,
+            .spawn((
+                SpriteBundle {
+                    sprite: Sprite {
+                        color: SNAKE_HEAD_COLOR,
+                        ..default()
+                    },
                     ..default()
                 },
-                ..default()
-            })
+                OnGameScreen,
+            ))
             .insert(SnakeHead {
                 direction: Direction::Up,
             })
@@ -129,13 +132,16 @@ pub fn snake_movement(
 }
 fn spawn_segment(mut commands: Commands, position: Position) -> Entity {
     commands
-        .spawn(SpriteBundle {
-            sprite: Sprite {
-                color: SNAKE_SEGMENT_COLOR,
+        .spawn((
+            SpriteBundle {
+                sprite: Sprite {
+                    color: SNAKE_SEGMENT_COLOR,
+                    ..default()
+                },
                 ..default()
             },
-            ..default()
-        })
+            OnGameScreen,
+        ))
         .insert(SnakeSegment)
         .insert(position)
         .insert(Size::square(0.65))

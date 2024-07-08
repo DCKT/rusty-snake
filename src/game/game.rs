@@ -5,7 +5,7 @@ use crate::{
     utils::{despawn_screen, GameState, Position, Size, ARENA_HEIGHT, ARENA_WIDTH, TEXT_COLOR},
 };
 
-use super::sound::{self, FoodEatenPitchEvent, PitchFrequency};
+use super::sound::{self, FoodEatenPitchEvent};
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, SubStates)]
 #[source(GameState = GameState::Game)]
@@ -19,7 +19,7 @@ enum InGameState {
 pub struct GameOverEvent;
 
 #[derive(Component)]
-struct OnGameScreen;
+pub struct OnGameScreen;
 
 pub fn game_plugin(app: &mut App) {
     app.add_sub_state::<InGameState>()
@@ -27,7 +27,10 @@ pub fn game_plugin(app: &mut App) {
         .add_event::<GrowthEvent>()
         .add_event::<GameOverEvent>()
         .add_event::<FoodEatenPitchEvent>()
-        .add_systems(OnEnter(GameState::Game), (init_game, spawn_snake).chain())
+        .add_systems(
+            OnEnter(GameState::Game),
+            (init_game_resources, spawn_snake).chain(),
+        )
         .add_systems(Update, pause_menu.run_if(in_state(InGameState::Paused)))
         .add_systems(OnExit(InGameState::Paused), despawn_screen::<OnPauseScreen>)
         .add_systems(
@@ -52,7 +55,7 @@ pub fn game_plugin(app: &mut App) {
         .add_systems(OnExit(GameState::Game), despawn_screen::<OnGameScreen>);
 }
 
-fn init_game(mut commands: Commands) {
+fn init_game_resources(mut commands: Commands) {
     commands.insert_resource(ClearColor(Color::srgb(0.04, 0.04, 0.04)));
     commands.insert_resource(FoodSpawnTimer(Timer::from_seconds(
         2.0,

@@ -3,6 +3,8 @@ use rand::prelude::random;
 
 use crate::utils::{Position, Size, ARENA_HEIGHT, ARENA_WIDTH};
 
+use super::game::OnGameScreen;
+
 const FOOD_COLOR: Color = Color::srgb(1.0, 0.0, 1.0);
 
 #[derive(Component)]
@@ -39,13 +41,16 @@ pub fn food_spawner(
         let position = get_available_position(positions);
 
         commands
-            .spawn(SpriteBundle {
-                sprite: Sprite {
-                    color: FOOD_COLOR,
+            .spawn((
+                SpriteBundle {
+                    sprite: Sprite {
+                        color: FOOD_COLOR,
+                        ..default()
+                    },
                     ..default()
                 },
-                ..default()
-            })
+                OnGameScreen,
+            ))
             .insert(Food)
             .insert(position)
             .insert(Size::square(0.8));
