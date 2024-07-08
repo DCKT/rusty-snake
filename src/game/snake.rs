@@ -6,7 +6,10 @@ use crate::{
     utils::{Direction, Position, Size, ARENA_HEIGHT, ARENA_WIDTH},
 };
 
-use super::{game::OnGameScreen, sound::FoodEatenPitchEvent};
+use super::{
+    game::{OnGameScreen, ScoreText},
+    sound::FoodEatenPitchEvent,
+};
 
 #[derive(Component)]
 pub struct SnakeSegment;
@@ -167,6 +170,7 @@ pub fn snake_eating(
     mut pitch_writer: EventWriter<FoodEatenPitchEvent>,
     food_positions: Query<(Entity, &Position), With<Food>>,
     head_positions: Query<&Position, With<SnakeHead>>,
+    mut texts: Query<&mut Text, With<ScoreText>>,
 ) {
     for head_pos in head_positions.iter() {
         for (ent, food_pos) in food_positions.iter() {
@@ -174,6 +178,14 @@ pub fn snake_eating(
                 commands.entity(ent).despawn();
                 growth_writer.send(GrowthEvent);
                 pitch_writer.send(FoodEatenPitchEvent);
+
+                for mut text in &mut texts {
+                    let current_store = text.sections[1]
+                        .value
+                        .parse::<u32>()
+                        .expect("Can't get score");
+                    text.sections[1].value = (current_store + 100).to_string();
+                }
             }
         }
     }

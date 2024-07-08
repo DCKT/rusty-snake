@@ -21,6 +21,9 @@ pub struct GameOverEvent;
 #[derive(Component)]
 pub struct OnGameScreen;
 
+#[derive(Component)]
+pub struct ScoreText;
+
 pub fn game_plugin(app: &mut App) {
     app.add_sub_state::<InGameState>()
         .enable_state_scoped_entities::<InGameState>()
@@ -29,7 +32,7 @@ pub fn game_plugin(app: &mut App) {
         .add_event::<FoodEatenPitchEvent>()
         .add_systems(
             OnEnter(GameState::Game),
-            (init_game_resources, spawn_snake).chain(),
+            (init_game_resources, spawn_score_hud, spawn_snake).chain(),
         )
         .add_systems(Update, pause_menu.run_if(in_state(InGameState::Paused)))
         .add_systems(OnExit(InGameState::Paused), despawn_screen::<OnPauseScreen>)
@@ -85,6 +88,44 @@ fn toggle_pause(
 
 #[derive(Component)]
 struct OnPauseScreen;
+
+fn spawn_score_hud(mut commands: Commands) {
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.),
+                    height: Val::Px(100.),
+                    ..default()
+                },
+                ..default()
+            },
+            OnGameScreen,
+        ))
+        .with_children(|parent| {
+            parent.spawn((
+                TextBundle::from_sections([
+                    TextSection::new(
+                        "Score: ",
+                        TextStyle {
+                            font_size: 20.,
+                            color: TEXT_COLOR,
+                            ..default()
+                        },
+                    ),
+                    TextSection::new(
+                        "0",
+                        TextStyle {
+                            font_size: 20.,
+                            color: TEXT_COLOR,
+                            ..default()
+                        },
+                    ),
+                ]),
+                ScoreText,
+            ));
+        });
+}
 
 fn pause_menu(mut commands: Commands) {
     commands

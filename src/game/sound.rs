@@ -21,7 +21,7 @@ pub fn play_food_eaten_pitch(
     for _ in events.read() {
         info!("playing pitch with frequency: {}", frequency.0);
         commands.spawn(PitchBundle {
-            source: pitch_assets.add(Pitch::new(frequency.0, Duration::from_millis(200))),
+            source: pitch_assets.add(Pitch::new(frequency.0, Duration::from_millis(150))),
             settings: PlaybackSettings::DESPAWN,
         });
         info!("number of pitch assets: {}", pitch_assets.len());
