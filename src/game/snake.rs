@@ -115,7 +115,7 @@ pub fn snake_movement(
             if head_pos.x < 0
                 || head_pos.y < 0
                 || head_pos.x as u32 >= ARENA_WIDTH
-                || head_pos.y as u32 >= ARENA_HEIGHT
+                || head_pos.y as u32 >= ARENA_HEIGHT - 1
             {
                 game_over_writer.send(GameOverEvent);
             }

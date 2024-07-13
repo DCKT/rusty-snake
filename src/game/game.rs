@@ -95,9 +95,15 @@ fn spawn_score_hud(mut commands: Commands) {
             NodeBundle {
                 style: Style {
                     width: Val::Percent(100.),
-                    height: Val::Px(100.),
+                    height: Val::Px(46.),
+                    padding: UiRect {
+                        top: Val::Px(12.),
+                        left: Val::Px(12.),
+                        ..default()
+                    },
                     ..default()
                 },
+                background_color: Color::srgb(0.2, 0.2, 0.2).into(),
                 ..default()
             },
             OnGameScreen,
@@ -108,7 +114,7 @@ fn spawn_score_hud(mut commands: Commands) {
                     TextSection::new(
                         "Score: ",
                         TextStyle {
-                            font_size: 20.,
+                            font_size: 24.,
                             color: TEXT_COLOR,
                             ..default()
                         },
@@ -192,6 +198,8 @@ and the window is 400px across, then it should have a width of 10.
 fn size_scaling(windows: Query<&Window>, mut q: Query<(&Size, &mut Transform)>) {
     let window = windows.single();
 
+    // 0.8 (head size) / 10 * 500 (window size) = 40
+
     for (sprite_size, mut transform) in q.iter_mut() {
         transform.scale = Vec3::new(
             sprite_size.width / ARENA_WIDTH as f32 * window.width() as f32,
@@ -202,9 +210,13 @@ fn size_scaling(windows: Query<&Window>, mut q: Query<(&Size, &mut Transform)>) 
 }
 fn position_translation(windows: Query<&Window>, mut q: Query<(&Position, &mut Transform)>) {
     fn convert(pos: f32, bound_window: f32, bound_game: f32) -> f32 {
+        // 500 / 10 = 50
         let tile_size = bound_window / bound_game;
+
+        // 1 / 10 * 500 - (250) + 25
         pos / bound_game * bound_window - (bound_window / 2.) + (tile_size / 2.)
     }
+
     let window = windows.single();
     for (pos, mut transform) in q.iter_mut() {
         transform.translation = Vec3::new(

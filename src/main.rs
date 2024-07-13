@@ -16,7 +16,7 @@ fn main() {
             primary_window: Some(Window {
                 title: "Rusty Snake".into(),
                 name: Some("bevy.app".into()),
-                resolution: (600., 600.).into(),
+                resolution: (500., 500.).into(),
                 present_mode: PresentMode::AutoVsync,
                 // Tells wasm to resize the window according to the available canvas
                 // Tells wasm not to override default event handling, like F5, Ctrl+R etc.

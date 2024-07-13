@@ -16,7 +16,7 @@ pub struct FoodSpawnTimer(pub Timer);
 fn generate_random_position() -> Position {
     Position {
         x: (random::<f32>() * ARENA_WIDTH as f32) as i32,
-        y: (random::<f32>() * ARENA_HEIGHT as f32) as i32,
+        y: (random::<f32>() * ARENA_HEIGHT as f32 - 1.) as i32,
     }
 }
 
