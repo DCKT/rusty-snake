@@ -5,13 +5,19 @@ use crate::utils::{Position, Size, ARENA_HEIGHT, ARENA_WIDTH};
 
 use super::game::OnGameScreen;
 
-const FOOD_COLOR: Color = Color::srgb(1.0, 0.0, 1.0);
+const GROW_FOOD_COLOR: Color = Color::srgb(1.0, 0.0, 1.0);
+const SHRINK_FOOD_COLOR: Color = Color::srgb(0.0, 0.3, 1.0);
 
 #[derive(Component)]
-pub struct Food;
+pub enum Food {
+    Grow,
+    Shrink,
+}
 
 #[derive(Resource)]
 pub struct FoodSpawnTimer(pub Timer);
+#[derive(Resource)]
+pub struct ShrinkFoodSpawnTimer(pub Timer);
 
 fn generate_random_position() -> Position {
     Position {
@@ -31,7 +37,7 @@ fn get_available_position(positions: Query<&Position>) -> Position {
     }
 }
 
-pub fn food_spawner(
+pub fn grow_food_spawner(
     mut commands: Commands,
     positions: Query<&Position>,
     time: Res<Time>,
@@ -44,14 +50,39 @@ pub fn food_spawner(
             .spawn((
                 SpriteBundle {
                     sprite: Sprite {
-                        color: FOOD_COLOR,
+                        color: GROW_FOOD_COLOR,
                         ..default()
                     },
                     ..default()
                 },
                 OnGameScreen,
             ))
-            .insert(Food)
+            .insert(Food::Grow)
+            .insert(position)
+            .insert(Size::square(0.8));
+    }
+}
+pub fn shrink_food_spawner(
+    mut commands: Commands,
+    positions: Query<&Position>,
+    time: Res<Time>,
+    mut timer: ResMut<ShrinkFoodSpawnTimer>,
+) {
+    if timer.0.tick(time.delta()).just_finished() {
+        let position = get_available_position(positions);
+
+        commands
+            .spawn((
+                SpriteBundle {
+                    sprite: Sprite {
+                        color: SHRINK_FOOD_COLOR,
+                        ..default()
+                    },
+                    ..default()
+                },
+                OnGameScreen,
+            ))
+            .insert(Food::Shrink)
             .insert(position)
             .insert(Size::square(0.8));
     }

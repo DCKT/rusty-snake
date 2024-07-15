@@ -24,10 +24,19 @@ pub struct OnGameScreen;
 #[derive(Component)]
 pub struct ScoreText;
 
+#[derive(Resource)]
+pub struct Hud {
+    pub score: u32,
+}
+
+#[derive(Component)]
+struct OnPauseScreen;
+
 pub fn game_plugin(app: &mut App) {
     app.add_sub_state::<InGameState>()
         .enable_state_scoped_entities::<InGameState>()
         .add_event::<GrowthEvent>()
+        .add_event::<ShrinkEvent>()
         .add_event::<GameOverEvent>()
         .add_event::<FoodEatenPitchEvent>()
         .add_systems(
@@ -43,10 +52,12 @@ pub fn game_plugin(app: &mut App) {
                     snake_movement_input,
                     snake_eating,
                     snake_growth,
+                    snake_shrink,
                     snake_movement,
                     sound::play_food_eaten_pitch,
                     game_over,
-                    food_spawner,
+                    grow_food_spawner,
+                    shrink_food_spawner,
                 )
                     .chain()
                     .run_if(in_state(InGameState::Running)),
@@ -64,12 +75,17 @@ fn init_game_resources(mut commands: Commands) {
         2.0,
         TimerMode::Repeating,
     )));
+    commands.insert_resource(ShrinkFoodSpawnTimer(Timer::from_seconds(
+        8.0,
+        TimerMode::Repeating,
+    )));
     commands.insert_resource(SnakeDirectionTimer(Timer::from_seconds(
         0.20,
         TimerMode::Repeating,
     )));
     commands.insert_resource(LastTailPosition::default());
     commands.insert_resource(SnakeSegments::default());
+    commands.insert_resource(Hud { score: 0 });
     sound::setup(commands);
 }
 
@@ -85,9 +101,6 @@ fn toggle_pause(
         });
     }
 }
-
-#[derive(Component)]
-struct OnPauseScreen;
 
 fn spawn_score_hud(mut commands: Commands) {
     commands
