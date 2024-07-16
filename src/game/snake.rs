@@ -68,7 +68,6 @@ pub fn spawn_snake(mut commands: Commands, mut segments: ResMut<SnakeSegments>) 
 pub fn snake_movement_input(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut user_input: Query<&mut UserInput>,
-    mut heads: Query<&mut SnakeHead>,
 ) {
     if let Some(mut user_input) = user_input.iter_mut().next() {
         if keyboard_input.pressed(KeyCode::ArrowLeft) {
@@ -80,18 +79,12 @@ pub fn snake_movement_input(
         } else if keyboard_input.pressed(KeyCode::ArrowUp) {
             user_input.direction = Direction::Up;
         }
-
-        if let Some(mut head) = heads.iter_mut().next() {
-            if user_input.direction != head.direction.opposite() {
-                head.direction = user_input.direction;
-            }
-        }
     }
 }
 
 pub fn snake_movement(
     segments: ResMut<SnakeSegments>,
-    mut heads: Query<(Entity, &SnakeHead)>,
+    mut heads: Query<(Entity, &mut SnakeHead, &UserInput)>,
     mut positions: Query<&mut Position>,
     mut game_over_writer: EventWriter<GameOverEvent>,
     time: Res<Time>,
@@ -99,7 +92,10 @@ pub fn snake_movement(
     mut last_tail_position: ResMut<LastTailPosition>,
 ) {
     if timer.0.tick(time.delta()).just_finished() {
-        if let Some((head_entity, head)) = heads.iter_mut().next() {
+        if let Some((head_entity, mut head, user_input)) = heads.iter_mut().next() {
+            if user_input.direction != head.direction.opposite() {
+                head.direction = user_input.direction;
+            }
             let segment_positions = segments
                 .0
                 .iter()
@@ -202,10 +198,11 @@ pub fn snake_eating(
             if food_pos == head_pos {
                 commands.entity(ent).despawn();
 
+                pitch_writer.send(FoodEatenPitchEvent(*food));
+
                 match food {
                     Food::Grow => {
                         growth_writer.send(GrowthEvent);
-                        pitch_writer.send(FoodEatenPitchEvent);
                         hud.score += 100;
                     }
                     Food::Shrink => {
@@ -219,7 +216,8 @@ pub fn snake_eating(
                         500..=900 => 0.18,
                         1000..=1300 => 0.16,
                         1400..=1600 => 0.14,
-                        _ => 0.12,
+                        1700..=2000 => 0.12,
+                        _ => 0.1,
                     };
 
                     *game_speed = SnakeDirectionTimer(Timer::from_seconds(

@@ -86,7 +86,6 @@ fn init_game_resources(mut commands: Commands) {
     commands.insert_resource(LastTailPosition::default());
     commands.insert_resource(SnakeSegments::default());
     commands.insert_resource(Hud { score: 0 });
-    sound::setup(commands);
 }
 
 fn toggle_pause(
@@ -211,8 +210,6 @@ and the window is 400px across, then it should have a width of 10.
 fn size_scaling(windows: Query<&Window>, mut q: Query<(&Size, &mut Transform)>) {
     let window = windows.single();
 
-    // 0.8 (head size) / 10 * 500 (window size) = 40
-
     for (sprite_size, mut transform) in q.iter_mut() {
         transform.scale = Vec3::new(
             sprite_size.width / ARENA_WIDTH as f32 * window.width() as f32,
@@ -223,10 +220,8 @@ fn size_scaling(windows: Query<&Window>, mut q: Query<(&Size, &mut Transform)>) 
 }
 fn position_translation(windows: Query<&Window>, mut q: Query<(&Position, &mut Transform)>) {
     fn convert(pos: f32, bound_window: f32, bound_game: f32) -> f32 {
-        // 500 / 10 = 50
         let tile_size = bound_window / bound_game;
 
-        // 1 / 10 * 500 - (250) + 25
         pos / bound_game * bound_window - (bound_window / 2.) + (tile_size / 2.)
     }
 

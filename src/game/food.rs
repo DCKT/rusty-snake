@@ -8,7 +8,7 @@ use super::game::OnGameScreen;
 const GROW_FOOD_COLOR: Color = Color::srgb(1.0, 0.0, 1.0);
 const SHRINK_FOOD_COLOR: Color = Color::srgb(0.0, 0.3, 1.0);
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy)]
 pub enum Food {
     Grow,
     Shrink,
